@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gold Motion — Add Custom Effects</title>
+<meta name="description" content="How to add your own effects to the Custom category in Gold Motion. The header format, the thumbnail rule, the import steps, and 77 ready-to-import effects.">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="logo.webp">
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in">
+    <a class="brand" href="#top">
+      <img src="logo.webp" alt="Gold Motion logo" width="36" height="36">
+      <span>Gold Motion <em>Custom FX Docs</em></span>
+    </a>
+    <span class="grow"></span>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Open documentation contents">
+      <svg class="ic-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+      <svg class="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="drawer" id="drawer" aria-label="Documentation contents">
+  <div class="drawer-head">
+    <span>Contents</span>
+    <button class="drawer-close" id="drawerClose" type="button" aria-label="Close contents">×</button>
+  </div>
+  <div class="drawer-links">
+    <a href="#what"><b>01</b><span>Overview</span></a>
+    <a href="#header"><b>02</b><span>The header</span></a>
+    <a href="#import"><b>03</b><span>Importing an effect</span></a>
+    <a href="#params"><b>04</b><span>Controls</span></a>
+    <a href="#shader"><b>05</b><span>The shader</span></a>
+    <a href="#uniforms"><b>·</b><span>Engine values</span></a>
+    <a href="#tips"><b>06</b><span>Working practice</span></a>
+    <a href="#fix"><b>07</b><span>Troubleshooting</span></a>
+    <a href="#prompt"><b>08</b><span>AI prompt</span></a>
+    <a href="#library"><b>09</b><span>Effects library</span></a>
+    <a href="#faq"><b>10</b><span>FAQ</span></a>
+  </div>
+  <a class="btn go drawer-download" href="downloads/GoldMotion-CustomFX-Pack.zip" download>Download all 77 effects</a>
+</nav>
+<div class="scrim" id="scrim" aria-hidden="true"></div>
+
+<main class="page">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <h1>Add your own effects to Gold&nbsp;Motion</h1>
+    <p class="sub">
+      Gold Motion has a <strong>Custom</strong> category with a <strong>+</strong> button on it. Tap it, hand the app an XML
+      file, and that effect shows up next to the built-in ones. No server, no account, no rebuild.
+      The whole file is a header, a list of sliders, and a shader — and the header is the part everybody gets wrong.
+    </p>
+    <div class="acts">
+      <a class="btn go" href="downloads/GoldMotion-CustomFX-Pack.zip" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Download 77 ready effects
+      </a>
+      <a class="btn" href="#header">Read the header guide</a>
+    </div>
+    <div class="facts">
+      <div><b>1 file</b>per effect</div>
+      <div><b>77</b>in the pack</div>
+      <div><b>9</b>categories</div>
+      <div><b>V7.0.2+</b>required</div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 01 WHAT ============ -->
+<section class="rv" id="what">
+  <div class="wrap">
+    <div class="num">01 — Overview</div>
+    <h2>What the Custom category actually does</h2>
+    <p class="sub">
+      Open the effects browser and you'll find a category called <strong>Custom</strong>. It ships with one entry and a
+      <strong>+</strong> button above the list. Everything you add through that button lands here and behaves exactly like a
+      stock effect — it goes on a layer, it has sliders, it animates, it deletes cleanly.
+    </p>
+
+    <h3>What happens when you tap +</h3>
+    <p>Behind that one button the app does five things. Knowing the order saves you a lot of confusion later.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Step</th><th>What the app does</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Opens a file picker. You choose a <code class="inl">.xml</code> file.</td></tr>
+          <tr><td>2</td><td>Parses it with the same parser it uses for its own effects. If that fails you get <em>“That XML is not a valid Gold Motion effect.”</em></td></tr>
+          <tr><td>3</td><td>Copies the file into the app's private <code class="inl">custom_effects/</code> folder and writes a small <code class="inl">.meta.json</code> beside it.</td></tr>
+          <tr><td>4</td><td><strong>Asks you for a thumbnail image.</strong> This is a required step, not an optional extra.</td></tr>
+          <tr><td>5</td><td>Writes its own <code class="inl">content://</code> URI back into the header's <code class="inl">thumb</code> attribute.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <span class="t">Step 5 is the whole story</span>
+      <p>The app does not just read your header — it <strong>edits it</strong>. That single fact is the source of the one
+      mistake nearly everybody makes, and it's covered in full in the next section.</p>
+    </div>
+
+    <div class="box bad">
+      <span class="t">Version note</span>
+      <p>The Custom <strong>+</strong> button does not exist in Gold Motion V6.x. This feature arrived in V7. If you are on an
+      older build you will not find the button at all — update to <strong>V7.0.2</strong> or newer before anything on this page applies.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 02 HEADER ============ -->
+<section class="rv" id="header">
+  <div class="wrap">
+    <div class="num">02 — The header</div>
+    <h2>The header, and the one rule that matters</h2>
+    <p class="sub">
+      The first tag in the file is the header. It names the effect, files it under Custom, and — critically — carries a
+      <code class="inl">thumb</code> attribute that must be present even before you have a thumbnail.
+    </p>
+
+    <h3>A correct header</h3>
+    <div class="cb">
+      <div class="cb-t"><i></i><span>my_effect.xml</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;?xml version='1.0' encoding='UTF-8' ?&gt;
+
+&lt;effect id="gm.custom.my_effect"
+        name="My Effect"
+        desc="One line describing what this does."
+        category="custom"
+        thumb="content://com.goldmotion.pnkj_com.alightcreative.app.motion.fileprovider/share/gmcustom/my_effect.png"
+        tags="gm,custom,color,glow"&gt;</code></pre>
+    </div>
+
+    <h3>Every attribute</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Attribute</th><th></th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td><span class="req">required</span></td><td>Unique name for the effect. It <strong>must start with <code>gm.custom.</code></strong> — that prefix is how the app recognises it as a custom effect. Lowercase, dots and underscores only.</td></tr>
+          <tr><td>name</td><td><span class="req">required</span></td><td>What you see in the list. This is also what the app checks for duplicates, so two effects with the same <code>name</code> will prompt you to replace.</td></tr>
+          <tr><td>desc</td><td>advised</td><td>Shown under the name. One or two lines. Long descriptions get clipped.</td></tr>
+          <tr><td>category</td><td><span class="req">required</span></td><td>Must be <code>custom</code>. Anything else and the effect will not appear where you imported it.</td></tr>
+          <tr><td>thumb</td><td><span class="req">required</span></td><td><strong>The attribute the app refreshes.</strong> It must contain the pack's <code>content://</code> file-provider line shown below so the selected image can be attached.</td></tr>
+          <tr><td>tags</td><td>optional</td><td>Comma-separated keywords. Start with <code>gm,custom</code> and add your own: <code>glow,neon,text</code>.</td></tr>
+          <tr><td>experimental</td><td>optional</td><td><code>true</code> or <code>false</code>. Marks the effect as unstable.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Why <code class="inl">thumb</code> is not optional</h3>
+    <p>
+      After you pick a thumbnail during import, the app looks through your XML for the literal text <code class="inl">thumb="</code>
+      so it can swap the value for its own file URI. If that text isn't in the file, there is nothing to swap — and the
+      thumbnail you just chose never gets attached to the effect.
+    </p>
+    <p>
+      The effect still imports. It just sits there with a blank tile, and people spend an hour assuming the image was the
+      wrong size. It wasn't. The attribute was missing.
+    </p>
+
+    <div class="box bad">
+      <span class="t">The rule</span>
+      <p>Every custom effect file must contain <code class="inl">thumb="…"</code> in the header — even if the value is a
+      placeholder you make up. If you remember one thing from this page, remember this one.</p>
+    </div>
+
+    <h3>The exact <code class="inl">thumb</code> line to use</h3>
+    <p>Use this line in the effect header. Change only the final <code class="inl">my_effect.png</code> when your slug changes; Gold Motion refreshes the URI after you select a thumbnail during import.</p>
+    <div class="cb">
+      <div class="cb-t"><i></i><span>after import</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">thumb="content://com.goldmotion.pnkj_com.alightcreative.app.motion.fileprovider/share/gmcustom/my_effect.png"</code></pre>
+    </div>
+    <p>That URI points at the image copy managed by the app's file provider. Keep the complete attribute in the header so the import process can attach the picture you choose.</p>
+
+    <h3>Copy this and only change three things</h3>
+    <p>If you're starting from scratch, use this as your template. Change <code class="inl">my_effect</code>, the
+    <code class="inl">name</code>, and the <code class="inl">desc</code>. Leave everything else exactly as it is.</p>
+    <div class="cb">
+      <div class="cb-t"><i></i><span>template</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;?xml version='1.0' encoding='UTF-8' ?&gt;
+&lt;effect id="gm.custom.my_effect"
+        name="My Effect"
+        desc="What it does."
+        category="custom"
+        thumb="content://com.goldmotion.pnkj_com.alightcreative.app.motion.fileprovider/share/gmcustom/my_effect.png"
+        tags="gm,custom"&gt;
+
+  &lt;params&gt;
+    &lt;texture id="inputImg" srcType="content" /&gt;
+    &lt;spinner id="amount" default="0.6" min="0.0" max="1.0" step="0.01" label="Amount" /&gt;
+  &lt;/params&gt;
+
+  &lt;shader type="fragment" precision="high"&gt;&lt;![CDATA[
+  void main(){
+    vec2 uv  = acScreenNorm;
+    vec4 src = texture2DCv(inputImg.texture, uv);
+    gl_FragColor = vec4(src.rgb * (1.0 + amount * 0.3), src.a);
+  }
+  ]]&gt;&lt;/shader&gt;
+
+&lt;/effect&gt;</code></pre>
+    </div>
+
+    <h3>The other header mistakes</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Mistake</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>id doesn't start with <code>gm.custom.</code></td><td>The app won't treat it as a custom effect.</td></tr>
+          <tr><td>Same <code>name</code> as an existing effect</td><td>Prompt: “<em>&lt;name&gt;</em> is already in your Custom effects.”</td></tr>
+          <tr><td>Raw <code>&amp;</code> or <code>&lt;</code> inside a value</td><td>Malformed XML. The file is rejected outright.</td></tr>
+          <tr><td><code>label="@am:string/…"</code> copied from a stock effect</td><td>Labels render blank — those strings only exist inside the app.</td></tr>
+          <tr><td>Missing the <code>&lt;?xml … ?&gt;</code> first line</td><td>Some parsers reject the file immediately.</td></tr>
+          <tr><td>Unclosed <code>&lt;params&gt;</code> or <code>&lt;shader&gt;</code></td><td>Not valid XML — same rejection as above.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 03 IMPORT ============ -->
+<section class="rv" id="import">
+  <div class="wrap">
+    <div class="num">03 — Import</div>
+    <h2>Importing an effect, step by step</h2>
+    <p class="sub">This is the real order of operations, including the thumbnail prompt most guides forget to mention.</p>
+
+    <div class="steps">
+      <div class="stp">
+        <h4>Get the .xml onto your phone</h4>
+        <p>Copy the file anywhere you can browse to from a file picker — Downloads, Drive, Telegram, a folder in your
+        gallery. There is no special folder to drop it in; the <strong>+</strong> button asks you to find it each time.</p>
+      </div>
+
+      <div class="stp">
+        <h4>Open Gold Motion and select a layer</h4>
+        <p>Any layer — photo, video, shape, text. An effect needs a layer to attach to, so have one selected before you
+        go into the effects browser.</p>
+      </div>
+
+      <div class="stp">
+        <h4>Open the effects browser and find Custom</h4>
+        <p>Scroll the category list until you reach <strong>Custom</strong>. If you can't find it, you're on a build older
+        than V7 — this category only exists from V7 onward.</p>
+      </div>
+
+      <div class="stp">
+        <h4>Tap the + button</h4>
+        <p>It sits at the top of the Custom category. That opens a document picker filtered to XML files.</p>
+      </div>
+
+      <div class="stp">
+        <h4>Pick your .xml file</h4>
+        <p>The app parses it straight away. If the header or the XML is broken you get
+        <em>“That XML is not a valid Gold Motion effect”</em> and nothing is added — go back and check the header section above.</p>
+      </div>
+
+      <div class="stp">
+        <h4>Pick a thumbnail when it asks</h4>
+        <p>Immediately after a successful import, the app asks you for an image. Choose anything square — a frame from the
+        clip, a poster, a screenshot. This is the picture that will appear on the effect's tile.</p>
+        <div class="box">
+          <p>This step is why the <code class="inl">thumb</code> attribute has to exist. The app writes the path to the image
+          you pick into that attribute. No attribute, no picture.</p>
+        </div>
+      </div>
+
+      <div class="stp">
+        <h4>The effect appears in the Custom list</h4>
+        <p>Tap it and it applies to your selected layer, with all your sliders live in the parameter panel.</p>
+      </div>
+
+      <div class="stp">
+        <h4>Leave the Custom page and come back in</h4>
+        <p><strong>Don't skip this.</strong> The grid is built when you enter the page. Backing out to the category list and
+        re-entering Custom forces it to rebuild and register the new effect properly — count, thumbnails and all.</p>
+        <div class="box good">
+          <span class="t">Do this every time</span>
+          <p>Import → back out → re-enter. If an effect looks like it didn't take, this is almost always why.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>Repeat from step 4 for each effect. Deleting is the same in reverse — the app removes the file and its metadata
+    from its own folder.</p>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 04 PARAMS ============ -->
+<section class="rv" id="params">
+  <div class="wrap">
+    <div class="num">04 — Controls</div>
+    <h2>Controls — the sliders your users get</h2>
+    <p class="sub">
+      Everything inside <code class="inl">&lt;params&gt;</code> becomes a control in the parameter panel. Each one has an
+      <code class="inl">id</code>, and that <code class="inl">id</code> is the variable name you use in the shader. That's the
+      entire contract — same word in both places.
+    </p>
+
+    <div class="cb">
+      <div class="cb-t"><i></i><span>the link</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;spinner id="amount" default="0.5" min="0.0" max="1.0" step="0.01" label="Amount" /&gt;
+                 ^^^^^^
+                 this becomes a variable called 'amount'
+
+&lt;shader type="fragment"&gt;&lt;![CDATA[
+void main(){
+  float v = amount;   // use it directly - no declaration needed
+}
+]]&gt;&lt;/shader&gt;</code></pre>
+    </div>
+
+    <div class="box bad">
+      <span class="t">The most common shader crash</span>
+      <p>Using a name in the shader that isn't declared in <code class="inl">&lt;params&gt;</code> fails to compile, and the
+      effect quietly does nothing. Declare it, or don't use it.</p>
+    </div>
+
+    <h3>The control types</h3>
+
+    <h4>spinner — a number slider</h4>
+    <div class="cb"><div class="cb-t"><i></i><span>spinner</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;spinner id="amount" default="0.7" min="0.0" max="2.0" step="0.01" label="Amount" /&gt;
+&lt;spinner id="angle"  default="0"   min="-180" max="180" step="0.5" label="Angle" type="angle" /&gt;
+&lt;spinner id="alpha"  default="1.0" min="0.0" max="1.0" step="0.01" label="Alpha" type="percent" /&gt;
+&lt;spinner id="count"  default="8"   min="2"   max="64"  step="1"   label="Count" type="integer" /&gt;</code></pre></div>
+    <p><code class="inl">type</code> is cosmetic: <code class="inl">percent</code> shows 0–1 as a percentage,
+    <code class="inl">angle</code> adds a dial, <code class="inl">integer</code> snaps to whole numbers.
+    <code class="inl">ticks="0, 0.5, 1"</code> adds notch marks. <code class="inl">slider</code> is an older alias with
+    identical attributes.</p>
+
+    <h4>color — a colour picker</h4>
+    <div class="cb"><div class="cb-t"><i></i><span>color</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;color id="tint" default="#FFFFC24B" label="Tint" alpha="true" /&gt;</code></pre></div>
+    <p>Format is <code class="inl">#AARRGGBB</code> — alpha first. In the shader it's a <code class="inl">vec4</code>, so use
+    <code class="inl">tint.rgb</code> for the colour.</p>
+
+    <h4>switch — an on/off toggle</h4>
+    <div class="cb"><div class="cb-t"><i></i><span>switch</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;switch id="vignetteOn" default="true" label="Add Vignette" /&gt;</code></pre></div>
+    <p>Arrives as a boolean. Use it directly: <code class="inl">if (vignetteOn) { … }</code></p>
+
+    <h4>selector — a dropdown or radio list</h4>
+    <div class="cb"><div class="cb-t"><i></i><span>selector</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;selector id="mode" style="dropdown" default="0" label="Mode"&gt;
+  &lt;choice value="0" label="Normal" /&gt;
+  &lt;choice value="1" label="Multiply" /&gt;
+  &lt;choice value="2" label="Screen" /&gt;
+&lt;/selector&gt;</code></pre></div>
+    <p>The <code class="inl">id</code> arrives as an integer holding the selected <code class="inl">value</code>.</p>
+
+    <h4>texture — an image input</h4>
+    <div class="cb"><div class="cb-t"><i></i><span>texture</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;texture id="inputImg" srcType="content" /&gt;
+&lt;texture id="comp"     srcType="comp" /&gt;
+&lt;texture id="tmp"      srcType="buffer" downsample="2" /&gt;
+&lt;texture id="grain"    srcType="image" src="resource/grain.png" /&gt;</code></pre></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>srcType</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>content</td><td>The layer the effect sits on. Your <code>inputImg</code>. You almost always need exactly one.</td></tr>
+          <tr><td>comp</td><td>The whole composition underneath — for blend effects.</td></tr>
+          <tr><td>buffer</td><td>An internal render target for multi-pass work. <code>downsample="2"</code> halves the resolution.</td></tr>
+          <tr><td>image</td><td>A bundled image, referenced with <code>src="…"</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>point / xyz — vectors</h4>
+    <div class="cb"><div class="cb-t"><i></i><span>point and xyz</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;point id="center" default="0.5,0.5" label="Centre" /&gt;
+&lt;xyz   id="rotate" default="0,0,0"   label="Rotation" /&gt;</code></pre></div>
+    <p>A <code class="inl">point</code> is a <code class="inl">vec2</code>, an <code class="inl">xyz</code> is a
+    <code class="inl">vec3</code>.</p>
+
+    <h4>section — a group header</h4>
+    <div class="cb"><div class="cb-t"><i></i><span>section</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="xml">&lt;section text="Channel Gain" /&gt;</code></pre></div>
+    <p>Pure layout. It splits the panel into labelled groups. Fifteen ungrouped sliders is unusable — use these.</p>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 05 SHADER ============ -->
+<section class="rv" id="shader">
+  <div class="wrap">
+    <div class="num">05 — The shader</div>
+    <h2>The shader — where the pixels happen</h2>
+    <p class="sub">
+      GLSL ES 1.00, the same language the app's own effects use. It runs once per pixel, on the GPU, every frame.
+      You get the pixel position, you read the layer, you write a colour.
+    </p>
+
+    <div class="cb">
+      <div class="cb-t"><i></i><span>the smallest working effect</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="glsl">void main(){
+  vec2 uv  = acScreenNorm;                       // where am I on screen, 0..1
+  vec4 src = texture2DCv(inputImg.texture, uv);  // read the layer
+  gl_FragColor = src;                            // write it back
+}</code></pre>
+    </div>
+
+    <p>That is a complete, valid effect that does nothing. Start from it and add arithmetic in the middle.</p>
+
+    <h3>Four rules that decide whether it works</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Rule</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Read with texture2DCv()</td><td>The engine's sampler clamps safely at the edges. <code>texture2D()</code> also works but doesn't clamp.</td></tr>
+          <tr><td>Output is premultiplied</td><td>Write <code>vec4(rgb * alpha, alpha)</code>. Skip the multiply and semi-transparent pixels glow wrong.</td></tr>
+          <tr><td>Un-premultiply before grading</td><td>The input is premultiplied too. Do <code>src.rgb / max(src.a, 1e-4)</code> first, re-multiply at the end.</td></tr>
+          <tr><td>texture2D, not texture</td><td>GLSL ES 1.00 has no <code>texture()</code>. Calling it fails to compile and the effect goes dead silently.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>An effect with everything in the right order</h3>
+    <div class="cb">
+      <div class="cb-t"><i></i><span>annotated</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="glsl">// Helper functions must be declared BEFORE main().
+float luma(vec3 c){
+  return dot(c, vec3(0.2126, 0.7152, 0.0722));   // Rec.709
+}
+
+void main(){
+  vec2 uv  = acScreenNorm;
+  vec4 src = texture2DCv(inputImg.texture, uv);
+
+  float a = max(src.a, 1e-4);       // guard the divide
+  vec3  c = src.rgb / a;            // un-premultiply -> straight colour
+
+  // 'amount' and 'speed' are ids declared in <params>.
+  float pulse = 0.5 + 0.5 * sin(acTime * speed * 6.2831853);
+  c += amount * pulse * 0.4;
+
+  gl_FragColor = vec4(clamp(c, 0.0, 1.0) * a, a);   // re-premultiply
+}</code></pre>
+    </div>
+
+    <div class="box">
+      <span class="t">Loops</span>
+      <p>Loop bounds must be constant. <code class="inl">for (int i = 0; i &lt; 8; i++)</code> compiles everywhere;
+      <code class="inl">for (int i = 0; i &lt; count; i++)</code> with a slider as the bound fails on many GPUs. Use a fixed
+      bound and multiply the result by the slider.</p>
+    </div>
+
+    <h3 id="uniforms">Values the app hands you</h3>
+    <p>These exist automatically in every shader. You never declare them. They all start with <code class="inl">ac</code>,
+    which is how you tell engine values apart from your own parameters.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Name</th><th>Type</th><th>What it is</th></tr></thead>
+        <tbody>
+          <tr><td>acScreenNorm</td><td>vec2</td><td>This pixel's position, <code>0..1</code>. The one you'll use most.</td></tr>
+          <tr><td>acScreenSize</td><td>vec2</td><td>Render target size in pixels. Use for aspect ratio.</td></tr>
+          <tr><td>acLayerNorm</td><td>vec2</td><td>Position in the layer's own space.</td></tr>
+          <tr><td>acLayerSize</td><td>vec2</td><td>Layer size in pixels.</td></tr>
+          <tr><td>acLayerToScreen</td><td>mat4</td><td>Layer space to screen space.</td></tr>
+          <tr><td>acScreenToLayer</td><td>mat4</td><td>The inverse.</td></tr>
+          <tr><td>acTime</td><td>float</td><td>Seconds. Feed it into a <code>sin()</code> to animate anything.</td></tr>
+          <tr><td>acPass</td><td>int</td><td>Which render pass is running. Only matters for multi-pass.</td></tr>
+          <tr><td>acLayerCenter</td><td>vec2</td><td>Layer centre in pixels.</td></tr>
+          <tr><td>acLayerCenterNorm</td><td>vec2</td><td>Layer centre, normalised.</td></tr>
+          <tr><td>acLayerPivot</td><td>vec2</td><td>The layer's anchor point.</td></tr>
+          <tr><td>acPreviewSize</td><td>vec2</td><td>Preview surface size.</td></tr>
+          <tr><td>acVelocity</td><td>vec2</td><td>Layer motion — great for velocity-driven blur.</td></tr>
+          <tr><td>acScaleVelocity</td><td>float</td><td>Rate of scale change.</td></tr>
+          <tr><td>acAngularVelocity</td><td>float</td><td>Rate of rotation.</td></tr>
+          <tr><td>acShowGuides</td><td>bool</td><td>True while the user is dragging a control.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <span class="t">Aspect ratio, the correct way</span>
+      <p><code class="inl">float ar = acScreenSize.x / max(acScreenSize.y, 1.0);</code> then work in
+      <code class="inl">(uv - 0.5) * vec2(ar, 1.0)</code>. This is what keeps circles round on a tall phone.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 06 TIPS ============ -->
+<section class="rv" id="tips">
+  <div class="wrap">
+    <div class="num">06 — Working practice</div>
+    <h2>Four things that save you an evening</h2>
+
+    <div class="steps">
+      <div class="stp">
+        <h4>Check the <code class="inl">thumb</code> attribute every single time</h4>
+        <p>Before you import anything you wrote, look at the header and confirm <code class="inl">thumb="…"</code> is
+        there. It costs two seconds and it is the cause of more "my effect has no picture" messages than everything else
+        combined. Every file in the pack has it — use one as your starting point.</p>
+      </div>
+
+      <div class="stp">
+        <h4>Keep 5–10 reference effects open while you work</h4>
+        <p>Don't write GLSL into a blank page. Keep a handful of effects you like open in another window and copy their
+        structure — how they declare controls, how they guard the alpha divide, how they lay out a loop. Strong effects
+        are almost always a known-good skeleton with new maths in the middle. The 77-effect pack exists for exactly this:
+        pick the one closest to your idea and change it.</p>
+      </div>
+
+      <div class="stp">
+        <h4>If it isn't good, fix it again — don't ship it</h4>
+        <p>Nobody gets a nice effect on the first pass. The loop is: edit → import → look at it on a real clip → change
+        one number → import again. Two dozen passes on one effect is normal. If the result is muddy, the fix is usually
+        a narrower slider range or a <code class="inl">clamp()</code> you forgot, not a rewrite.</p>
+      </div>
+
+      <div class="stp">
+        <h4>Back out of Custom and re-enter after every import</h4>
+        <p>The grid is built when you enter the page. Leave the Custom category and come back in, and the app rebuilds
+        it — new effect counted, thumbnail loaded, everything in place. If an import seems to have done nothing, this is
+        the first thing to try.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 07 FIX ============ -->
+<section class="rv" id="fix">
+  <div class="wrap">
+    <div class="num">07 — Troubleshooting</div>
+    <h2>When it fails</h2>
+    <p class="sub">Find the symptom you're seeing. Each one has a single cause.</p>
+
+    <div class="acc">
+      <details open>
+        <summary>“That XML is not a valid Gold Motion effect”</summary>
+        <div class="bd">
+          <p>The app's parser rejected the file. In order of likelihood: a missing or mismatched closing tag, a raw
+          <code>&amp;</code> or <code>&lt;</code> inside an attribute value, a missing <code>&lt;?xml … ?&gt;</code> first
+          line, or a quote left open. Open the file in a browser — if it shows an XML error, that's your answer.</p>
+        </div>
+      </details>
+      <details>
+        <summary>It imports, but the tile has no picture</summary>
+        <div class="bd">
+          <p>The header is missing <code>thumb="…"</code>. The app had nothing to write the image path into. Add the
+          attribute, re-import, and pick the thumbnail again.</p>
+        </div>
+      </details>
+      <details>
+        <summary>“&lt;name&gt;” is already in your Custom effects.</summary>
+        <div class="bd">
+          <p>You've imported an effect with the same <code>name</code> before. The app checks duplicates by name, not by
+          id. Either choose replace, or change the <code>name</code> in the header before importing.</p>
+        </div>
+      </details>
+      <details>
+        <summary>The effect is in the list but does nothing</summary>
+        <div class="bd">
+          <p>The shader didn't compile. Nine times out of ten a variable is used in the shader that isn't declared in
+          <code>&lt;params&gt;</code>, or the spelling differs between the two. Check every name matches exactly.</p>
+        </div>
+      </details>
+      <details>
+        <summary>The sliders move but nothing changes</summary>
+        <div class="bd">
+          <p>You declared the parameter but never used its id in the shader. The slider is wired to a variable nothing
+          reads.</p>
+        </div>
+      </details>
+      <details>
+        <summary>The labels are blank</summary>
+        <div class="bd">
+          <p>You copied a stock effect and kept <code>label="@am:string/…"</code>. Those strings live inside the app and
+          don't resolve in your file. Write literal text: <code>label="Amount"</code>.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Edges look dark, or transparent areas look wrong</summary>
+        <div class="bd">
+          <p>Premultiplied alpha. Un-premultiply with <code>src.rgb / max(src.a, 1e-4)</code> on the way in and output
+          <code>vec4(rgb * a, a)</code> on the way out.</p>
+        </div>
+      </details>
+      <details>
+        <summary>It looks stretched on a tall phone</summary>
+        <div class="bd">
+          <p>Aspect ratio. Work in <code>(uv - 0.5) * vec2(acScreenSize.x / acScreenSize.y, 1.0)</code> and convert back
+          before sampling.</p>
+        </div>
+      </details>
+      <details>
+        <summary>It flickers, or the preview crawls</summary>
+        <div class="bd">
+          <p>Too many texture reads. A 24-tap loop is 24 reads per pixel per frame. Cut the tap count, or declare a
+          <code>buffer</code> texture with <code>downsample="2"</code> and work at half resolution.</p>
+        </div>
+      </details>
+      <details>
+        <summary>It worked yesterday and now it's gone</summary>
+        <div class="bd">
+          <p>Custom effects live in the app's private storage. Clearing the app's cache or data removes them, as does
+          reinstalling. Keep your original <code>.xml</code> files somewhere safe — they are the master copies, and
+          re-importing takes seconds.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 08 PROMPT ============ -->
+<section class="doc" id="prompt">
+  <div class="wrap">
+    <div class="num">08 — AI prompt</div>
+    <h2>Generate a custom effect without guessing the format</h2>
+    <p class="sub">
+      This prompt is based on the schema used by all 77 XML effects in the pack: one content texture, grouped controls,
+      a single fragment shader and the same premultiplied output convention. It gives the model the exact contract
+      instead of asking it to invent Gold Motion attributes.
+    </p>
+
+    <div class="box">
+      <span class="t">How to use it</span>
+      <p>Copy the full block, add your effect description after <code class="inl">EFFECT REQUEST:</code>, and ask for
+      one XML file only. If the result fails to render, send the error back with <em>“compare the shader with a working
+      effect from the pack and repair it”</em>.</p>
+    </div>
+
+    <div class="cb">
+      <div class="cb-t"><i></i><span>copy the whole block</span><button class="cb-c">copy</button></div>
+<pre><code data-lang="text">ROLE
+You are a Gold Motion custom-effect developer. Produce a production-ready,
+single-file XML effect that follows the exact conventions of the 77-effect
+Gold Motion pack. Do not explain the file, add markdown, or output anything
+besides the XML.
+
+REQUIRED OUTPUT
+Return exactly ONE complete file in this order:
+&lt;?xml version='1.0' encoding='UTF-8' ?&gt;
+&lt;effect id="gm.custom.SLUG" name="NAME" desc="ONE SENTENCE"
+        category="custom"
+        thumb="content://com.goldmotion.pnkj_com.alightcreative.app.motion.fileprovider/share/gmcustom/SLUG.png"
+        tags="gm,custom,TAGS" experimental="false"&gt;
+  &lt;params&gt;
+    &lt;texture id="inputImg" srcType="content" /&gt;
+    ...grouped controls...
+  &lt;/params&gt;
+  &lt;shader type="fragment" precision="high"&gt;&lt;![CDATA[
+  ...complete GLSL ES 1.00...
+  ]]&gt;&lt;/shader&gt;
+&lt;/effect&gt;
+
+HEADER RULES
+1. Use lowercase id="gm.custom.SLUG". SLUG may contain letters, numbers and
+   underscores only; keep it short and unique.
+2. Use category="custom" and experimental="false".
+3. Include the thumb attribute exactly as shown. Gold Motion replaces its
+   value with the file URI for the image selected during import.
+4. desc is one short sentence that explains the visual result, not the code.
+5. tags is comma-separated and starts with gm,custom.
+
+PARAMS RULES
+1. Every file starts with &lt;texture id="inputImg" srcType="content" /&gt;.
+2. Use only these controls, because they match the pack:
+   &lt;spinner id="x" default="0.5" min="0.0" max="1.0" step="0.01" label="Amount" /&gt;
+   Optional spinner types: type="percent", type="angle", type="integer".
+   &lt;color id="tint" default="#FFFFC24B" label="Tint" alpha="true" /&gt;
+   &lt;switch id="enabled" default="true" label="Enabled" /&gt;
+   &lt;selector id="mode" style="dropdown" default="0" label="Mode"&gt;
+     &lt;choice value="0" label="First mode" /&gt;
+     &lt;choice value="1" label="Second mode" /&gt;
+   &lt;/selector&gt;
+   &lt;section text="Effect name" /&gt;
+3. Give the effect 3 to 6 useful controls with realistic defaults and ranges.
+   Put its main controls first, then an Output group containing
+   &lt;spinner id="mixAmt" default="1.0" min="0.0" max="1.0" step="0.01"
+           label="Effect Strength" /&gt;.
+4. End params with
+   &lt;section text="GOLD MOTION - CUSTOM FX" /&gt;.
+5. Use literal labels. Never use "@am:string/..." or "@string/...".
+6. Every shader variable must have a matching params id with exactly the
+   same spelling. Do not declare ac* engine values.
+
+SHADER RULES
+1. Use one fragment shader in GLSL ES 1.00. No #version, precision statement,
+   passes, multiple main functions, or external files.
+2. Read the layer with:
+   vec2 uv = acScreenNorm;
+   vec4 src = texture2DCv(inputImg.texture, uv);
+3. The sample is premultiplied. For normal colour processing use:
+   float a = max(src.a, 1e-4);
+   vec3 c = src.rgb / a;
+   ...edit c...
+   gl_FragColor = vec4(clamp(c, 0.0, 1.0) * src.a, src.a);
+4. Use texture2DCv(), never texture() or a guessed sampler function.
+5. Helper functions go before main(). Loop bounds must be compile-time
+   constants. Keep loops short enough for phones; prefer 8-16 taps.
+6. For circular coordinates use
+   vec2 p = (uv - 0.5) * vec2(acScreenSize.x / acScreenSize.y, 1.0);
+7. Animated effects use acTime multiplied by a speed control. Static effects
+   must still be clearly visible at the default settings.
+8. Multiply the final look by mixAmt. The default must show a useful,
+   obvious result rather than an empty or extremely subtle one.
+
+QUALITY CHECK BEFORE ANSWERING
+- The XML opens and closes correctly.
+- No tags, attributes, ids or labels were invented outside this contract.
+- Every control is used and every used variable is declared.
+- The shader has no compile-time names that are undefined.
+- The output has valid alpha and cannot produce transparent black edges.
+- The file is suitable for a phone: modest texture sampling and no heavy
+  nested loops.
+
+EFFECT REQUEST
+Replace this line with the effect to create:
+[Describe the visual result, intended use, animation, and controls here.]</code></pre>
+    </div>
+
+    <h3>Follow-ups that work</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Say this</th><th>To fix</th></tr></thead>
+        <tbody>
+          <tr><td>“It renders black.”</td><td>“Compare the shader with a working pack effect. Check the texture read uses texture2DCv, every params id matches, and the output re-multiplies the colour by alpha.”</td></tr>
+          <tr><td>“The tile is blank.”</td><td>“Restore the full thumb="content://…/gmcustom/SLUG.png" attribute in the effect header before import.”</td></tr>
+          <tr><td>“Edges look wrong.”</td><td>“The input is premultiplied. Un-premultiply with src.rgb / max(src.a, 1e-4) before colour maths and re-premultiply on output.”</td></tr>
+          <tr><td>“Make it move.”</td><td>“Drive it with acTime and add a speed control that multiplies it.”</td></tr>
+          <tr><td>“Too slow on my phone.”</td><td>“Cut the texture samples — replace the 24-tap loop with 8 taps and scale the result.”</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 09 LIBRARY ============ -->
+<section class="rv wide" id="library">
+  <div class="wrap">
+    <div class="num">09 — Resources</div>
+    <h2>77 effects, ready to import</h2>
+    <p class="sub">
+      Nine categories, every header correct, every shader commented. Import them as they are, or open one and use it as
+      the skeleton for your own. Nothing here is obfuscated.
+    </p>
+    <p class="note">The strongest <strong>Pro</strong> example from every category appears first.</p>
+  </div>
+
+  <div class="acts" style="margin:22px 0 4px">
+    <a class="btn go" href="downloads/GoldMotion-CustomFX-Pack.zip" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Download all 77
+    </a>
+    <span style="align-self:center;font-size:13px;color:var(--muted)">ZIP · 77 XML effects + install guide · 78 KB</span>
+  </div>
+
+  <div class="tools">
+    <div class="chips" id="chips"></div>
+    <input class="find" id="search" type="search" placeholder="Search effects…" autocomplete="off">
+  </div>
+
+  <div class="grid" id="fxgrid"></div>
+  <div class="none" id="fxempty" style="display:none">Nothing matches that search.</div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 10 FAQ ============ -->
+<section class="rv" id="faq">
+  <div class="wrap">
+    <div class="num">10 — FAQ</div>
+    <h2>Questions people actually ask</h2>
+
+    <div class="acc">
+      <details open>
+        <summary>Do custom effects need internet or an account?</summary>
+        <div class="bd"><p>No. The file is parsed and stored on your device. There's no server, no key and no login.</p></div>
+      </details>
+      <details>
+        <summary>Which Gold Motion version do I need?</summary>
+        <div class="bd"><p><strong>V7.0.2</strong> or newer. The Custom category and its + button don't exist in V6.x — that's the whole reason this feature is new.</p></div>
+      </details>
+      <details>
+        <summary>Can one file hold several effects?</summary>
+        <div class="bd"><p>No. One file is one effect. Five effects means five files, imported one at a time.</p></div>
+      </details>
+      <details>
+        <summary>Do I need to ship a thumbnail image with my effect?</summary>
+        <div class="bd"><p>Not in the file. You pick the thumbnail from your own gallery during import, and the app copies it into its own storage. The only requirement is that <code>thumb="…"</code> exists in the header so the app has somewhere to put the path.</p></div>
+      </details>
+      <details>
+        <summary>Where do my imported effects actually live?</summary>
+        <div class="bd"><p>In the app's private <code>custom_effects/</code> folder, each with a small <code>.meta.json</code> beside it. They're not in a shared folder you can browse to — which is why you should keep your original XML files safe.</p></div>
+      </details>
+      <details>
+        <summary>Will my effects survive an app update?</summary>
+        <div class="bd"><p>Updating normally keeps app data, so yes. Clearing the app's data or uninstalling removes them. Re-importing from your saved XML files takes seconds.</p></div>
+      </details>
+      <details>
+        <summary>Can a custom effect read the whole composition?</summary>
+        <div class="bd"><p>Yes — declare <code>&lt;texture id="comp" srcType="comp" /&gt;</code>. Reading an arbitrary other layer isn't part of the custom schema.</p></div>
+      </details>
+      <details>
+        <summary>Why does my effect look stretched on a tall phone?</summary>
+        <div class="bd"><p>Aspect ratio. Use <code>acScreenSize.x / acScreenSize.y</code> and work in normalised space, as shown in the shader section.</p></div>
+      </details>
+      <details>
+        <summary>Can I sell effects I make with this?</summary>
+        <div class="bd"><p>The files you write are yours. The 77-effect pack here is free to use and learn from — if you pass it on, keep the files intact so nobody gets a broken import.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <p>Docs made by @okpnkj</p>
+</footer>
+
+</main>
+
+<script src="effects.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
